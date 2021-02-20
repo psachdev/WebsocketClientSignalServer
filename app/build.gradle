@@ -10,12 +10,14 @@ android {
 
     defaultConfig {
         applicationId "com.psachdev.websocket"
-        minSdkVersion 21
+        minSdkVersion 24
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "BACKEND_DEBUG_WS_HOST_PORT", "\"ws://192.168.2.4:8080\"")
+        buildConfigField("String", "BACKEND_DEBUG_HTTP_HOST_PORT", "\"http://192.168.2.4:8080\"")
     }
 
     buildTypes {

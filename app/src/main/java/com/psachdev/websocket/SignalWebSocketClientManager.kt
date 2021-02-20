@@ -5,9 +5,9 @@ import org.java_websocket.drafts.Draft_6455
 import java.net.URI
 import java.util.concurrent.TimeUnit
 
-class SignalClient {
+class SignalWebSocketClientManager {
     companion object {
-        private const val signalServerUrl = "ws://192.168.2.6:8080/signal_server"
+        private const val signalServerUrl = BuildConfig.BACKEND_DEBUG_WS_HOST_PORT + "/v1/signal_server"
         private const val timeOut = 30 * 1000
         private const val connectTimeout = 30 * 1000
         const val sampleBearerToken =
@@ -16,9 +16,14 @@ class SignalClient {
 
     private lateinit var webSocketClient: WebSocketClient
 
-    fun initSignalClient(bearerToken: String) {
+    fun initSignalClient(bearerToken: String): Boolean {
         val signalServerUri = URI(signalServerUrl)
-        createWebSocketClient(signalServerUri, bearerToken)
+        return try {
+            createWebSocketClient(signalServerUri, bearerToken)
+        }catch (e: InterruptedException){
+            print(e.message)
+            false
+        }
     }
 
     fun destroySignalClient() {
@@ -46,10 +51,10 @@ class SignalClient {
     private fun createWebSocketClient(
         signalServerUri: URI,
         bearerToken: String
-    ) {
+    ): Boolean {
         val httpHeader = HashMap<String, String>()
         httpHeader["Authorization"] = bearerToken
         webSocketClient = SignalWebSocketClient(signalServerUri, Draft_6455(),  httpHeader, connectTimeout)
-        webSocketClient.connectBlocking(timeOut.toLong(), TimeUnit.SECONDS)
+        return webSocketClient.connectBlocking(timeOut.toLong(), TimeUnit.SECONDS)
     }
 }

@@ -9,8 +9,9 @@ import org.junit.runner.RunWith
 class SignalClientTest {
     @Test
     fun testConnectDisconnect() {
-        val signalClient = SignalClient()
-        signalClient.initSignalClient(SignalClient.sampleBearerToken)
+        val signalClient = SignalWebSocketClientManager()
+        val loginStatus = signalClient.initSignalClient(SignalWebSocketClientManager.sampleBearerToken)
+        Assert.assertTrue(loginStatus)
         Assert.assertTrue(signalClient.isOpen())
         Assert.assertFalse(signalClient.isClosed())
 

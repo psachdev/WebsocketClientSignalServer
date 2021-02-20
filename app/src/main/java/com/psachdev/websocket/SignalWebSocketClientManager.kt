@@ -2,6 +2,7 @@ package com.psachdev.websocket
 
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.drafts.Draft_6455
+import org.java_websocket.exceptions.WebsocketNotConnectedException
 import java.net.URI
 import java.util.concurrent.TimeUnit
 
@@ -11,7 +12,7 @@ class SignalWebSocketClientManager {
         private const val timeOut = 30 * 1000
         private const val connectTimeout = 30 * 1000
         const val sampleBearerToken =
-            "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJBdXRoZW50aWNhdGlvbiIsImlzcyI6InByYXRlZWtfd2VicnRjX3NpZ25hbF9zZXJ2ZXIiLCJuYW1lIjoiYWxpY2UiLCJpZCI6ImExIiwiZXhwIjoxNjEzNTQ4Mzc2fQ.jLbr3EO00pBCgHZqeuM8jACc4BK06I0hdS3qXjdW8t2ufwH09GTjSsvDURTnwQ5_d31A-xIqlgvAqQKJYy4YMQ"
+            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJBdXRoZW50aWNhdGlvbiIsImlzcyI6InByYXRlZWtfd2VicnRjX3NpZ25hbF9zZXJ2ZXIiLCJuYW1lIjoiYWxpY2UiLCJpZCI6ImExIiwiZXhwIjoxNjEzNTQ4Mzc2fQ.jLbr3EO00pBCgHZqeuM8jACc4BK06I0hdS3qXjdW8t2ufwH09GTjSsvDURTnwQ5_d31A-xIqlgvAqQKJYy4YMQ"
     }
 
     private lateinit var webSocketClient: WebSocketClient
@@ -19,10 +20,25 @@ class SignalWebSocketClientManager {
     fun initSignalClient(bearerToken: String): Boolean {
         val signalServerUri = URI(signalServerUrl)
         return try {
-            createWebSocketClient(signalServerUri, bearerToken)
+            createWebSocketClient(signalServerUri, "Bearer $bearerToken")
         }catch (e: InterruptedException){
             print(e.message)
             false
+        }
+    }
+
+    fun sendMessage(message: String): Boolean{
+        if (::webSocketClient.isInitialized && webSocketClient.isOpen) {
+            return try {
+                webSocketClient.send(message)
+                true
+            }catch(e: WebsocketNotConnectedException){
+                print("WebsocketNotConnectedException")
+                false
+            }
+        }else{
+            print("Websocket client is not open")
+            return false
         }
     }
 
